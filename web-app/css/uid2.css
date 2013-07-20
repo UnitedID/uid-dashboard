@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) 2011 - 2013 United ID.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ... */
+html{margin:0;padding:0;border:0;outline:0;height:100%;}
+
+body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    border:0;
+    outline:0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    color: #454545;
+}
+
+
+div, h2 {
+    display: block;
+}
+
+a {
+    outline-style: none;
+    outline-width: medium;
+    text-decoration: none;
+/*    color: #006070;*/
+    /*color: #888;*/
+    cursor: default;
+}
+
+img {
+    border: none;
+}
+
+#header, #main, #footer {
+
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+    width: 640px;
+
+}
+#float {
+    width: 1px;
+    float: left;
+    height: 50%;
+    margin-bottom: -205px;
+}
+#main {
+    height: 440px;
+    clear: left;
+    overflow: hidden;
+    position: relative;
+    padding-right: 10px;
+    padding-left: 10px;
+    width: 640px;
+}
+
+#header:after, #main:after, #footer:after, .wrap:after {
+    height: 0;
+    clear: both;
+    content: ".";
+    display: block;
+    visibility: hidden;
+}
+
+.wrap {
+    padding: 0;
+}
+
+.left {
+    padding-left: 0px;
+}
+
+#main p {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.welcome p {
+    margin-top: 20px;
+    font-size: 2.1em;
+    text-align: center;
+}
+
+.welcome a {
+    padding-top: 1em;
+    margin-top: 1em;
+    color: #fff;
+}
+
+.errortext {
+    color: #666;
+    font-size: 13px;
+    position: absolute;
+    top: 240px;
+    left: 10px;
+    width: 370px;
+}
+
+.exception {
+    height: 135px;
+    overflow-y: scroll;
+}
+
+h1 {
+    color: #666;
+}

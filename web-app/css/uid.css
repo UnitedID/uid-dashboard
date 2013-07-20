@@ -1,0 +1,274 @@
+/*
+ * Copyright (c) 2011 - 2013 United ID.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ... */
+html{margin:0;padding:0;border:0;outline:0;}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    border:0;
+    outline:0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    background-color: #fff;
+    color: #454545;
+}
+
+
+div, h2 {
+    display: block;
+}
+
+a {
+    outline-style: none;
+    outline-width: medium;
+    text-decoration: none;
+    color: #888;
+    cursor: default;
+}
+
+a:link, a:visited {
+    color: #888;
+    text-decoration: none;
+}
+
+a:hover, a:active {
+    color: #888;
+    text-decoration: underline;
+}
+
+
+.spinner {
+    padding: 5px;
+    position: absolute;
+    right: 0;
+}
+
+#header, #main, #footer {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+    width: 960px;
+
+}
+
+#main {
+    padding-right: 10px;
+    padding-left: 10px;
+    width: 940px;
+}
+
+#header {
+    font-size: 1.15em;
+    padding-left: 0px;
+}
+
+#header:after, #main:after, #footer:after, .wrap:after {
+    height: 0;
+    clear: both;
+    content: ".";
+    display: block;
+    visibility: hidden;
+}
+
+
+#header .logo {
+    float: left;
+    margin-top: 5px;
+    width: 255px;
+    display: block;
+}
+
+#header .logo a {
+    background:url("../images/uid_logo_small.png") no-repeat;
+    display:block;
+    height:58px;
+    text-indent:-10000px;
+}
+
+.wrap {
+    padding: 0;
+}
+
+.menu_bar {
+    font-weight: 300;
+    float: left;
+}
+
+.menu_bar ul {
+    padding-top: 18px;
+    padding-left: 40px;
+    margin-left: 0px;
+    list-style-type: none;
+}
+
+.menu_bar ul li {
+    color: #888;
+    padding-left: 5px;
+    padding-right: 5px;
+    float: left;
+    border-right: solid 1px #cfd3d6;
+}
+
+.menu_bar .selected {
+    text-decoration: underline;
+}
+
+.menu_bar .last{
+    border-right: 0;
+}
+
+#main h2 {
+    border-bottom: solid 1px #cfd3d6;
+    color: #006070;
+    font-size: 22px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 0.65em;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    height: 30px;
+}
+
+#main h2 span {
+    color: #b7b7b7;
+    font-size: 11px;
+    line-height: normal;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+    padding-left: 3px;
+}
+
+#main p {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+
+#footer {
+    font-size: 0.75em;
+    color: #999;
+    border-top: 1px solid #cfd3d6;
+    margin-top: 20px;
+    padding-top: 2px;
+}
+
+.copyright {
+    float: left;
+}
+
+.divider {
+    border-top: 1px solid #cfd3d6;
+}
+
+#main p.quote {
+    background-color: #eee;
+    font-style: italic;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-left: 4px solid #006070;
+}
+
+ul.small_menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+}
+
+ul.small_menu li {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 13px;
+    background: url("../images/ul_arrow.png") no-repeat;
+    background-position: 0% 50%;
+    border-bottom: 1px solid #cfd3d6;
+}
+
+.footer_menu {
+    float: left;
+    padding-left: 15px;
+}
+
+.footer_menu a {
+    color: #006070;
+}
+
+
+.win-float-20 {
+    float: left;
+    width: 20%;
+}
+
+.win-float-25 {
+    float: left;
+    width: 25%;
+}
+
+.win-float-30 {
+    float: left;
+    width: 30%;
+}
+
+.win-float-32 {
+    float: left;
+    width: 32%;
+}
+
+.win-float-33 {
+    float: left;
+    width: 33%;
+}
+
+.win-float-35 {
+    float: left;
+    width: 35%;
+}
+
+.win-float-40 {
+    float: left;
+    width: 40%;
+}
+
+
+.win-float-60 {
+    float: left;
+    width: 60%;
+}
+
+.win-float-65 {
+    float: left;
+    width: 65%;
+}
+
+.win-float-70 {
+    float: left;
+    width: 70%;
+}
+
+.float-right {
+    float: right;
+}
+

@@ -1,0 +1,185 @@
+/* Reset browser defaults */
+@import url('wp/reset.css');
+
+/* Apply basic typography styles */
+@import url('wp/typography.css');
+
+/* Apply a basic layout */
+@import url('wp/2c-r-fixed.css');
+
+/* Apply basic image styles */
+@import url('wp/images.css');
+
+/* Apply default theme styles and colors */
+@import url('wp/default.css');
+
+/* Styling for jquery password validation */
+@import url('jquery.validate.password.css');
+
+@import url('uniform.default.css');
+
+
+.entry-content img {
+    margin: 0 0 18px 0;
+    max-width:100%;
+}
+.alignleft,
+img.alignleft {
+	float: left;
+    margin-right:20px;
+}
+.alignright,
+img.alignright {
+	display: block;
+	float: right;
+    margin-left:20px;
+}
+.aligncenter,
+img.aligncenter {
+	margin-left:auto;
+	margin-right:auto;
+	display: block;
+	clear: both;
+}
+.wp-caption {
+	text-align: center;
+	margin-bottom:18px;
+}
+.wp-caption img {
+	margin: 0;
+	padding: 0;
+	border: 0 none;
+}
+.wp-caption p.wp-caption-text {
+	margin: 0;
+	padding:5px;
+}
+.gallery img {
+    margin:0;
+}
+.wp-smiley { /* Prevent the smileys from breaking line-height */
+	max-height:12px;
+	margin:0 !important;
+}
+
+#container-one-col {
+    width:940px;
+    float:left;
+}
+#content-one-col {
+    margin:0 0 0 10px;
+    width:900px;
+    overflow:hidden;
+}
+
+.validation {
+    float: left;
+    margin-top: 3px;
+    margin-left: 15px;
+}
+
+.validation label {
+    width: 400px;
+}
+
+.message {
+    background: #f3f8fc url(../images/skin/information.png) 8px 50% no-repeat;
+    margin: 0 0 15px 0;
+    padding: 5px 5px 5px 30px;
+    border: 1px solid #b2d1ff;
+    color: #006dba;
+}
+
+.errormsg {
+    background: #fff3f3 url(../images/skin/exclamation.png) 8px 50% no-repeat;;
+    border: 1px solid red;
+    margin: 0 0 15px 0;
+    color: #cc0000;
+    padding: 5px 5px 5px 30px;
+}
+
+.errors {
+    background: #fff3f3;
+    border: 1px solid red;
+    margin: 0 0 15px 0;
+    color: #cc0000;
+    padding: 5px 5px 5px 30px;
+}
+
+div.errors ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+div.errors li {
+	background: url(../images/skin/exclamation.png) 8px 0% no-repeat;
+    line-height: 16px;
+    padding-left: 30px;
+    margin: 0;
+}
+
+td.errors select {
+    border: 1px solid red;
+}
+td.errors input {
+    border: 1px solid red;
+}
+td.errors textarea {
+    border: 1px solid red;
+}
+
+.user {
+    float: right;
+}
+
+.user a, .user a:visited {
+    color: rgb(102, 102, 102);
+    float: right;
+    padding: 9px 13px 9px 13px;
+}
+
+.user a.logout {
+    padding-right: 20px;
+    margin-right: 10px;
+    background: url(../images/icons/exit_small.png) no-repeat;
+    background-position: 100% 50%;
+}
+
+.data img {
+    margin: 0 10px 0 0;
+}
+
+
+#cornerbanner {
+    background: url(../images/beta4-banner.png) no-repeat;
+    display: block;
+    height: 150px;
+    width: 150px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    text-decoration: none;
+}
+
+#tos {
+    overflow: auto;
+	width: 500px;
+	height: 300px;
+	background-color: #FDFDFD;
+}
+#barcode, #manbarcode, .token {
+    margin-left: 170px;
+}
+
+#barcode {
+    color: #168db9;
+}
+
+#barcode:hover {
+    text-decoration: underline;
+}
+
+#manbarcode {
+    display: none;
+}

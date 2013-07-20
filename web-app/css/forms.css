@@ -1,0 +1,161 @@
+/*
+ * Copyright (c) 2011 - 2013 United ID.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.form1 span {
+    padding-right: 3px;
+}
+
+.requiredtext {
+    font-size: 12px;
+}
+.form1 {
+    color: #555;
+    padding-top: 10px;
+}
+
+.form1 fieldset {
+    padding: 0;
+    border: none;
+    margin-bottom: 7px;
+}
+
+.form1 label {
+    color: #454545;
+    font-weight: bold;
+    display: block;
+    float: left;
+    width: 160px;
+    text-align: right;
+    height:22px;
+    margin: 1px 8px 0 0;
+    /*font-weight: bold;*/
+}
+
+.form1 p {
+    clear: both;
+    height: 1em;
+}
+
+.form1 p.image {
+    display: inline;
+}
+
+.form1 input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #168db9;
+    box-shadow: 0px 0px 6px #168db9;
+    -moz-box-shadow: 0px 0px 6px #168db9;
+    -webkit-box-shadow: 0px 0px 6px #168db9;
+}
+
+.form1 input[type="text"], input[type="password"] {
+    height: 14px;
+    outline: none;
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background: #f9f9f9;
+    margin-bottom: 5px;
+    margin-left: 2px;
+    border: solid 1px #b7b7b7;
+    width: 200px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0px 0px 6px #d9d9d9;
+    -moz-box-shadow: 0px 0px 6px #d9d9d9;
+    -webkit-box-shadow: 0px 0px 6px #d9d9d9;
+    background: #ffffff url('../images/bg_form.png') left top repeat-x;
+    background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+    background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+}
+
+.form1 label.error {
+    padding-left: 168px;
+    font-size: 11px;
+    font-style: italic;
+    font-weight: normal !important;
+    margin-bottom:4px;
+    color: #454545;
+    width: auto;
+}
+
+.form1 input[type="text"].otp {
+    width: 240px;
+}
+
+.form1 input[type="text"].yk {
+    background: url("../images/icons/yubico-icon-small.gif") left top no-repeat, url('../images/bg_form.png') left top repeat-x;
+    background-position: 2px 50%;
+    padding-left: 20px;
+    width: 255px;
+}
+
+.form1 input[type="text"].oath {
+    width: 280px;
+}
+
+.form1 input[type="text"].oath-otp {
+    background: url("../images/icons/oath.png") left top no-repeat, url('../images/bg_form.png') left top repeat-x;
+    background-position: 2px 50%;
+    padding-left: 20px;
+    width: 60px;
+}
+
+.form1 label.success {
+    background: url("../images/icons/valid.png") no-repeat;
+    background-position: 0 100%;
+    float: right;
+    width: auto !important;
+    padding-left: 145px;
+}
+
+.form1 label.success.yk {
+    padding-left: 75px;
+}
+
+.form1 label.success.oath {
+    padding-left: 68px;
+}
+
+.form1 label[for="otp"].success.oath {
+    padding-left: 272px !important;
+}
+
+input.error {
+    outline: none;
+    /*background: url("../images/icons/invalid.png") right no-repeat, url('../images/bg_form.png') left top repeat-x !important;
+    background-position: 98% 50% !important;*/
+    border-color: red !important;
+    box-shadow: 0px 0px 6px #ff0000 !important;
+    -moz-box-shadow: 0px 0px 6px #ff0000 !important;
+    -webkit-box-shadow: 0px 0px 6px #ff0000 !important;
+}
+
+input.valid {
+    outline: none;
+    border-color: green !important;
+    box-shadow: 0px 0px 6px #008800 !important;
+    -moz-box-shadow: 0px 0px 6px #008800 !important;
+    -webkit-box-shadow: 0px 0px 6px #008800 !important;
+}
+
+.password {
+    margin-top: 30px;
+    font-size: 0.8em;
+}
