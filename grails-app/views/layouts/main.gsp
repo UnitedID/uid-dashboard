@@ -53,7 +53,7 @@
       </div>
       <div id="footer">
         <div id="siteinfo">
-        &copy; 2011 United ID. All rights reserved.
+        &copy; 2014 United ID.
         </div> <!-- #siteinfo -->
       </div> <!-- #footer -->
     </div> <!-- #wrapper -->
