@@ -60,7 +60,9 @@ class User {
         sn blank: true
         mail blank: false, nullable: false, matches:"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,6}"
         active nullable: false
-        website blank: true, matches:"(https?://)?([-\\w\\.]+)+(:\\d+)?(:\\w+)?(@\\d+)?(@\\w+)?([-\\w\\.]+)(/([-\\w/_\\.]*(\\?\\S+)?)?)?"
+        website blank: true,
+                nullable: true,
+                matches:"(https?://)?([-\\w\\.]+)+(:\\d+)?(:\\w+)?(@\\d+)?(@\\w+)?([-\\w\\.]+)(/([-\\w/_\\.]*(\\?\\S+)?)?)?"
         address nullable: true, validator: { val, obj ->
             if (!val?.zip)
                 return true
