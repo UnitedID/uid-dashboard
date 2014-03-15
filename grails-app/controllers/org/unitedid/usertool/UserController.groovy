@@ -18,11 +18,16 @@ package org.unitedid.usertool
 import com.mongodb.MongoException
 
 import static org.unitedid.usertool.TokenUtility.getOathHOTPToken
+import static org.unitedid.usertool.TokenUtility.getOATHToken
 
 class UserController {
     static allowedMethods = [saveAccount: "POST", saveNewPassword: "POST", addToken: "POST"]
 
-    static tokenTypes = ['yubikey':'YubiKey','oathhotp':'OATH-HOTP (Event based)', 'googlehotp': 'Google Authenticator (Counter based)']
+    static tokenTypes = [
+            'yubikey':'YubiKey',
+            'oathhotp':'OATH-HOTP (Event based)',
+            'googlehotp': 'Google Authenticator (Counter based)',
+            'googletotp': 'Google Authenticator (Time based)']
 
     def mailService
 
@@ -348,8 +353,8 @@ class UserController {
                 return redirect(controller: "user", action: "manageTokens")
             }
             message = "An OATH-HOTP token has been added to your account. To activate this token please check your mail for further instructions."
-        } else if (tokenType == "googlehotp") {
-            token = getOathHOTPToken(params)
+        } else if (tokenType == "googlehotp" || tokenType == "googletotp") {
+            token = getOATHToken(params)
             token.identifier = session.uid + "@unitedid.org"
             if (!token) {
                 flash.error = "Google Authenticator verification failed"
@@ -392,7 +397,7 @@ class UserController {
             if (user && token != null) {
                 def (status, data) = TokenUtility.verifyToken((Token) token, params.otp)
                 if (status) {
-                    if (token.type == "yubikey") {
+                    if (token.type == "yubikey" || token.type == "googletotp") {
                         if (User.collection.update([ username : session.uid, 'tokens.authKey' : params.authKey ], [ $set : [ 'tokens.$.active' : true ]])) {
                             flash.message = "Your ${tokenTypes.get(token.type)} token with ${tokenId(token)} has been successfully activated"
                             generateMail(user.mail, null, "${flash.message}.\n")
@@ -507,6 +512,9 @@ class UserController {
                 case "googlehotp":
                     render(template: "googleauthhotp")
                     break
+                case "googletotp":
+                    render(template: "googleauthtotp")
+                    break
             }
         } else {
            render "<div></div>"
@@ -549,7 +557,7 @@ class UserController {
         def user = session.uid + "@unitedid.org"
         response.setHeader("Content-disposition", "attachment; filename=qrcode.png")
         response.contentType = "image/png"
-        def oathUri = "otpauth://hotp/" + user + "?secret=" + params.id
+        def oathUri = "otpauth://" + params.type + "/" + user + "?secret=" + params.id
         response.outputStream << BarCode.createQrCodeBlue(oathUri, 200, "png")
     }
 

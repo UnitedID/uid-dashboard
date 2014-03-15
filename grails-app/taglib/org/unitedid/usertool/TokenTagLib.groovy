@@ -40,6 +40,10 @@ class TokenTagLib {
                 out << "<span><img src=\"${resource(dir:'images/dongles', file:'googleauth.png')}\" alt=\"Google Authenticator\"/></span>"
                 out << "<span>Google Authenticator - ${fieldValue(bean: token, field: 'identifier')}</span>"
                 break
+            case "googletotp":
+                out << "<span><img src=\"${resource(dir:'images/dongles', file:'googleauth.png')}\" alt=\"Google Authenticator\"/></span>"
+                out << "<span>Google Authenticator - ${fieldValue(bean: token, field: 'identifier')}</span>"
+                break
         }
     }
 

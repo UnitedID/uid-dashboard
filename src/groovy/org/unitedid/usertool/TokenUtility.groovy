@@ -43,6 +43,8 @@ class TokenUtility {
             return [false, yubiKey.status]
         } else if (token.type == "oathhotp" || token.type == "googlehotp") {
             return verifyOathHotp(token, otp)
+        } else if (token.type == "googletotp") {
+            return verifyOathTOTP(token, otp)
         }
 
         return [false, "Token type '${token.type}' is not supported"]
@@ -85,6 +87,16 @@ class TokenUtility {
         return [false, "Validation failed for the supplied one-time password, please try again"]
     }
 
+    static def verifyOathTOTP(Token token, String otp) {
+        def keyHandle = (int) config.yhsm.oathValidationKeyHandle
+        YubiHSMValidationClient hsm = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
+        if (hsm.validateOathTOTP(token.nonce, keyHandle, token.aead, otp, 30, 0, 1, 1)) {
+            return [true, ""]
+        }
+
+        return [false, "Validation failed for the supplied one-time password, please try again"]
+    }
+
     static def getOathHOTPToken(params) {
         def seed = params.seed
         def identifier = params.identifier
@@ -107,6 +119,42 @@ class TokenUtility {
         if (counter > 0) {
             return new Token(type: tokenType, identifier: identifier, counter: counter, aead: aead, nonce: nonce)
         }
+
+        return null
+    }
+
+    static def getOATHToken(params) {
+        def seed = params.seed
+        def identifier = params.identifier
+        def otp = params.otp
+        def tokenType = params.tokenType
+
+        if (seed.length() != 40) {
+            return null
+        }
+
+        def aeadKeyHandle = (int) config.yhsm.oathEncryptKeyHandle
+        def validationKeyHandle = (int) config.yhsm.oathValidationKeyHandle
+        def nonce = PasswordUtil.getRandomNonce()
+
+        YubiHSM hsm = new YubiHSM(config.yhsm.device, (float) 0.5)
+        YubiHSMValidationClient hsmWsClient = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
+        def aead = hsm.generateOathHotpAEAD(nonce, aeadKeyHandle, seed)
+
+        def counter
+        if (tokenType == "googletotp") {
+            counter = hsmWsClient.validateOathTOTP(nonce, validationKeyHandle, aead, otp, 30, 0, 2, 2)
+        } else {
+            counter = hsmWsClient.validateOathHOTP(nonce, validationKeyHandle, aead, 0, otp, 40)
+        }
+
+        //if (counter > 0) {
+            if (tokenType == "googletotp") {
+                return new Token(type: tokenType, identifier: identifier, aead: aead, nonce: nonce)
+            } else {
+                return new Token(type: tokenType, identifier: identifier, counter: counter, aead: aead, nonce: nonce)
+            }
+       // }
 
         return null
     }

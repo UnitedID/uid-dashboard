@@ -22,7 +22,7 @@
     });
   });
   $(function() {
-    $("#addGoogleHotp").validate({
+    $("#addGoogleTotp").validate({
       success: function(label) {
         label.addClass("success oath");
       },
@@ -47,9 +47,9 @@
   });
 </script>
 <g:set var="qrcode" value="${TokenUtility.generateGoogleAuthKey()}" />
-<g:form id="tokens" method="post" name="addGoogleHotp">
+<g:form id="tokens" method="post" name="addGoogleTotp">
   <fieldset>
-  <g:hiddenField name="tokenType" value="googlehotp" />
+  <g:hiddenField name="tokenType" value="googletotp" />
   <g:hiddenField name="seed" value="${qrcode[0]}" />
     <div class="token">
       1. In Google Authenticator, select Scan Barcode<br/>
@@ -57,7 +57,7 @@
     </div>
     <p class="image">
       <label></label>
-      <img src="${createLink(controller: 'user', action: 'generateQRCode', id: qrcode[1], params: [type: 'hotp'])}" />
+      <img src="${createLink(controller: 'user', action: 'generateQRCode', id: qrcode[1], params: [type: 'totp'])}" />
     </p>
     <div id="barcode">
       Can't use the barcode?
@@ -70,7 +70,7 @@
           In "Enter key" enter your secret key:<br/>
           <p style="font-weight: bold;"><uid:friendlyGoogleAuth code="${qrcode[1]}"/></p>
         </li>
-        <li>Select Counter based type of key.</li>
+        <li>Select Time based type of key.</li>
         <li>Push Save.</li>
       </ol>
     </div>

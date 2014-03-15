@@ -153,7 +153,8 @@ class LoginController {
             if (!token.active)
                 continue
 
-            if (otp =~ /[0-9]+/ && otp.length() >= 6 && otp.length() <= 8 && (token.type == "oathhotp" || token.type == "googlehotp")) {
+            if (otp =~ /[0-9]+/ && otp.length() >= 6 && otp.length() <= 8 &&
+                    (token.type == "oathhotp" || token.type == "googlehotp" || token.type == "googletotp")) {
                 (status, data) = TokenUtility.verifyToken(token, otp)
             } else if (otp.length() >= 32 && token.type == "yubikey") {
                 (status, data) = TokenUtility.verifyToken(token, otp)
