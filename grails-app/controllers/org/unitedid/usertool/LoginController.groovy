@@ -15,10 +15,9 @@
  */
 
 package org.unitedid.usertool
-
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import com.mongodb.MongoException
 import com.megatome.grails.RecaptchaService
+import com.mongodb.MongoException
+import grails.util.Holders
 
 class LoginController {
     static allowedMethods = [authenticate: "POST", validateTokenAuth: "POST"]
@@ -26,7 +25,7 @@ class LoginController {
     RecaptchaService recaptchaService
 
     def beforeInterceptor = [action:this.&verifyNoSession]
-    def config = ConfigurationHolder.config
+    def config = Holders.config
 
     def verifyNoSession = {
         if (session?.uid && !session.tokenAuthRequired)

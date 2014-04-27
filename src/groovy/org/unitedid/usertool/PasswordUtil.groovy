@@ -18,7 +18,6 @@
 
 package org.unitedid.usertool
 
-import grails.util.Environment
 import grails.util.Holders
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.binary.Hex
