@@ -81,7 +81,7 @@ class LoginController {
             recaptchaOK = false
         }
 
-        if (!user || !recaptchaOK || !PasswordUtil.validatePassword(params['password'].toString(), user.salt, user.password, user.nonce)) {
+        if (!user || !recaptchaOK || !PasswordUtil.validatePassword(params['password'].toString(), user)) {
             flash.error = "Invalid username, email or password"
             session.failedAttempts = session?.failedAttempts ? session.failedAttempts + 1 : 1
             redirect(action: 'index')

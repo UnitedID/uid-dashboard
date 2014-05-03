@@ -17,24 +17,51 @@
 
 
 package org.unitedid.usertool
-
 import grails.util.Holders
-import org.apache.commons.codec.binary.Base64
-import org.apache.commons.codec.binary.Hex
-import org.unitedid.yhsm.YubiHSM
-import org.unitedid.yhsm.internal.YubiHSMInputException
-import org.unitedid.yhsm.ws.client.YubiHSMValidationClient
-
-import javax.crypto.SecretKey
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
-import java.security.SecureRandom
+import org.bson.types.ObjectId
+import org.unitedid.auth.client.AuthClient
+import org.unitedid.auth.client.PasswordFactor
+import org.unitedid.auth.client.RevokeFactor
 
 class PasswordUtil {
 
     static def config = Holders.config
+    static def baseURL = (String) config.auth.backend.baseURL
 
-    public static Map<String, String> getAEADFromPassword(String password) {
+    static def generateSecret(String password, String userId) {
+        PasswordFactor passwordFactor = new PasswordFactor(password, new ObjectId().toString())
+        AuthClient authClient = new AuthClient(baseURL)
+        if (!authClient.addCredential(userId, passwordFactor)) {
+            throw new Exception("Add credential failed")
+        }
+        return new Credential(credentialId: passwordFactor.credentialId, salt: passwordFactor.salt)
+    }
+
+    public static boolean validatePassword(String password, User user) {
+        def result = false
+        print "CredId: " + user.credential.credentialId + " Salt: " + user.credential.salt
+        PasswordFactor passwordFactor = new PasswordFactor(password,
+                user.credential.credentialId,
+                user.credential.salt)
+        AuthClient authClient = new AuthClient(baseURL)
+        if (authClient.authenticate(user.id.toString(), passwordFactor)) {
+            result = true
+        }
+
+        return result
+    }
+
+    static def revokeCredential(Credential credential, String userId) {
+        AuthClient authClient = new AuthClient(baseURL)
+        RevokeFactor factor = new RevokeFactor("password", credential.credentialId)
+        if (authClient.revokeCredential(userId, factor)) {
+            return true
+        }
+        return false
+    }
+
+
+/*    public static Map<String, String> getAEADFromPassword(String password) {
         def nonce = getRandomNonce()
         def salt = getRandomNonce()
 
@@ -85,4 +112,5 @@ class PasswordUtil {
             throw new Exception(e)
         }
     }
+    */
 }

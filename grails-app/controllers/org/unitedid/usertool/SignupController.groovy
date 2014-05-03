@@ -76,6 +76,9 @@ class SignupController {
             recaptchaOK = false
         }
 
+        // Generate and add credential to auth backend
+        userInstance.credential = PasswordUtil.generateSecret(params.password, userInstance.id.toString())
+
         if (recaptchaOK && !userInstance.hasErrors() && userInstance.save(flush: true)) {
             recaptchaService.cleanUp(session)
             session.mail = userInstance.mail

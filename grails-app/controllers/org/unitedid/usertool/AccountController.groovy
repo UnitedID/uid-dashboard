@@ -71,20 +71,31 @@ class AccountController {
         if (request.method == "POST") {
             if (params?.userId && params?.key && params?.password && params?.password2) {
                 def id = new ObjectId(params.userId.toString())
-                def user = User.collection.findOne([_id: id, states: [ $elemMatch : [key: "resetPassword", authKey: params.key, date: [$gte: new Date()]]]  ])
+                User user = User.createCriteria().get() {
+                    and {
+                        eq 'id', id
+                        states {
+                            and {
+                                eq 'key', "resetPassword"
+                                eq 'authKey', params.key
+                                gte('date', new Date())
+                            }
+                        }
+                    }
+                }
+
                 if (user) {
                     if (params.password != params.password2) {
                         flash.error = "Passwords does not match"
                         render(view: "resetPassword", model: [user: user])
                         return
                     }
-                    def aead = PasswordUtil.getAEADFromPassword(params.password)
-                    user.password = aead.aead
-                    user.nonce = aead.nonce
-                    user.salt = aead.salt
-                    if (User.collection.update([_id: id], [$set : [password: aead.aead, nonce: aead.nonce, salt: aead.salt], $pull: [states : [key: "resetPassword"]]])) {
-                        def encryptMe = "Username: ${user.username}\nPassword: ${params.password}\n"
-                        PasswordUtil.storeEscrow(encryptMe, "${user._id}.asc")
+
+                    def oldCredential = user.credential
+                    user.credential = PasswordUtil.generateSecret(params.password, id.toString())
+
+                    if (user.save(flush: true) && User.collection.update([_id: id], [$pull: [states : [key: "resetPassword"]]])) {
+                        PasswordUtil.revokeCredential(oldCredential, user.id.toString())
                         render(view: "resetPasswordSuccess")
                         return
                     } else {

@@ -267,22 +267,19 @@ class UserController {
                 return render(view: "changePassword")
             }
 
-            if (params['currentPassword'] != "" && !PasswordUtil.validatePassword(params['currentPassword'].toString(), user.salt, user.password, user.nonce)) {
+            if (params['currentPassword'] != "" && !PasswordUtil
+                    .validatePassword(params['currentPassword'].toString(), user)) {
                 flash.error = "Invalid password!"
                 render(view: "changePassword")
             } else if (params['password'] != params['password2']) {
                 flash.message = "New passwords did not match!"
                 render(view: "changePassword", model: [currentPassword: params['currentPassword']])
             } else {
-                def aead = PasswordUtil.getAEADFromPassword(params['password'].toString())
-                user.properties['password'] = aead.aead
-                user.properties['nonce'] = aead.nonce
-                user.properties['salt'] = aead.salt
+                def oldCredential = user.credential
+                user.credential = PasswordUtil.generateSecret(params['password'].toString(), user.id.toString())
 
                 if (!user.hasErrors() && user.save(flush: true)) {
-                    // Save in escrow
-                    def encryptMe = "Username: ${user.username}\nPassword: ${params['password']}\n"
-                    PasswordUtil.storeEscrow(encryptMe, "${user.id}.asc")
+                    PasswordUtil.revokeCredential(oldCredential, user.id.toString())
                     flash.message = "Password updated successfully"
                     redirect(controller: "dashboard", action: "index")
                 } else {

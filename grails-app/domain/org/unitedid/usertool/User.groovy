@@ -15,20 +15,18 @@
  */
 
 package org.unitedid.usertool
-
 import org.bson.types.ObjectId
 
 class User {
-    ObjectId id
+    ObjectId id = new ObjectId()
     Integer uidObjectVersion = 1
     String givenName
     String sn
     String username
     String mail
     String website
-    String password // In our case this is the AEAD
-    String nonce
-    String salt
+    String password
+    Credential credential
 
     boolean acceptTerms
     boolean active = false
@@ -46,9 +44,12 @@ class User {
 
     static hasMany = [tokens:Token, states:State]
 
-    static embedded = ['address', 'tokens', 'states']
+    static embedded = ['address', 'tokens', 'states', 'credential']
+
+    static transients = ['password']
 
     static mapping = {
+        id generator: "assigned"
         username index:true, indexAttributes: [unique: true, dropDups: true]
         mail index:true, indexAttributes: [unique: true, dropDups: true]
         mailAlias index:true, indexAttributes: [unique: true, dropDups: true]
@@ -56,8 +57,9 @@ class User {
 
     static constraints = {
         username blank: false, nullable: false, size: 2..50, matches:"[a-zA-Z0-9_-]+"
-        givenName blank: true
-        sn blank: true
+        credential blank: true, nullable: true
+        givenName blank: true, nullable: true
+        sn blank: true, nullable: true
         mail blank: false, nullable: false, matches:"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,6}"
         active nullable: false
         website blank: true,
@@ -76,31 +78,14 @@ class User {
         acceptTerms validator: { val, obj ->
             !val ? false : true
         }
-        password blank: false,
-                nullable: false,
-                size: 8..100
-        nonce nullable: true
-        salt nullable: true
+        /*password blank: false,
+                nullable: false*/
         activationKey nullable: true
     }
 
     def beforeInsert() {
         this.username = username.toLowerCase()
         this.mail = mail.toLowerCase()
-        doAead()
-    }
-
-    /*
-    def beforeUpdate() {
-        this.email = email.toLowerCase()
-    }
-    */
-
-    void doAead() {
-        def aead = PasswordUtil.getAEADFromPassword(this.password)
-        this.password = aead.aead
-        this.nonce = aead.nonce
-        this.salt = aead.salt
     }
 }
 
@@ -143,6 +128,15 @@ class State {
     }
 }
 
+class Credential {
+    String credentialId
+    String salt
+
+    static constraints = {
+        credentialId nullable: true
+        salt nullable: true
+    }
+}
 
 class Token {
     String tokId = new ObjectId().toString()
