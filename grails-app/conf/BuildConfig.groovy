@@ -5,6 +5,19 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.target.level = 1.7
 grails.project.source.level = 1.7
 
+grails.project.fork = [
+        // configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
+        //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+
+        // configure settings for the test-app JVM, uses the daemon by default
+        test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+        // configure settings for the run-app JVM
+        run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
+        // configure settings for the run-war JVM
+        war: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
+        // configure settings for the Console UI JVM
+        console: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256]
+]
 
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.dependency.resolution = {
@@ -42,6 +55,9 @@ grails.project.dependency.resolution = {
         test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
         runtime 'org.apache.commons:commons-email:1.2'
+        runtime 'org.springframework.security:spring-security-core:3.2.2.RELEASE'
+        runtime 'org.glassfish.jersey.core:jersey-client:2.7'
+        runtime 'com.google.code.gson:gson:2.2.4'
     }
 
     plugins {
@@ -49,15 +65,15 @@ grails.project.dependency.resolution = {
             exclude "spock-grails-support"
         }
 
-        runtime ":hibernate:3.6.10.2"
+        runtime ":hibernate:3.6.10.10"
 
-        build ":tomcat:7.0.42"
+        build ":tomcat:7.0.52.1"
 
         runtime ":greenmail:1.3.4"
         runtime ":jquery:1.10.2"
         runtime ":jquery-ui:1.8.24"
         runtime ":jquery-validation:1.9"
-        runtime ":mongodb:1.3.3"
+        runtime ":mongodb:3.0.0"
         runtime ":quartz:1.0.1"
         runtime ":recaptcha:0.6.7"
 
