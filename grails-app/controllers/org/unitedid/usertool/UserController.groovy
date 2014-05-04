@@ -17,7 +17,6 @@
 package org.unitedid.usertool
 import com.mongodb.MongoException
 
-import static org.unitedid.usertool.TokenUtility.getOathHOTPToken
 import static org.unitedid.usertool.TokenUtility.getOATHToken
 
 class UserController {
@@ -25,7 +24,8 @@ class UserController {
 
     static tokenTypes = [
             'yubikey':'YubiKey',
-            'oathhotp':'OATH-HOTP (Event based)',
+            'oathhotp':'OATH-HOTP (Counter based)',
+            'oathtotp':'OATH-TOTP (Time based)',
             'googlehotp': 'Google Authenticator (Counter based)',
             'googletotp': 'Google Authenticator (Time based)']
 
@@ -343,20 +343,21 @@ class UserController {
                 flash.error = yubiKey.status
                 return redirect(controller: "user", action: "manageTokens")
             }
-        } else if (tokenType == "oathhotp") {
-            token = getOathHOTPToken(params)
+        } else if (tokenType == "oathhotp" || tokenType == "oathtotp") {
+            token = getOATHToken(session.oid.toString(), params)
+            def tokenDesc = tokenType == 'oathhotp' ? "OATH-HOTP" : "OATH-TOTP"
             if (!token) {
-                flash.error = "OATH-HOTP verification failed"
+                flash.error = "${tokenDesc} verification failed"
                 return redirect(controller: "user", action: "manageTokens")
             }
-            message = "An OATH-HOTP token has been added to your account. To activate this token please check your mail for further instructions."
+            message = "An ${tokenDesc} token has been added to your account. To activate this token please check your mail for further instructions."
         } else if (tokenType == "googlehotp" || tokenType == "googletotp") {
-            token = getOATHToken(params)
-            token.identifier = session.uid + "@unitedid.org"
+            token = getOATHToken(session.oid.toString(), params)
             if (!token) {
                 flash.error = "Google Authenticator verification failed"
                 return redirect(controller: "user", action: "manageTokens")
             }
+            token.identifier = session.uid + "@unitedid.org"
             message = "A Google Authenticator token has been added to your account. To activate this token please check your mail for further instructions."
         } else {
             flash.error = "Unknown token type, please try again."
@@ -392,24 +393,14 @@ class UserController {
             def user = User.collection.findOne([username: session.uid, 'tokens.authKey': params.authKey])
             Token token = getTokenByAuthKey(user.tokens, params.authKey)
             if (user && token != null) {
-                def (status, data) = TokenUtility.verifyToken((Token) token, params.otp)
+                def (status, data) = TokenUtility.verifyToken(session.uid.toString(), token, params.otp)
                 if (status) {
-                    if (token.type == "yubikey" || token.type == "googletotp") {
-                        if (User.collection.update([ username : session.uid, 'tokens.authKey' : params.authKey ], [ $set : [ 'tokens.$.active' : true ]])) {
-                            flash.message = "Your ${tokenTypes.get(token.type)} token with ${tokenId(token)} has been successfully activated"
-                            generateMail(user.mail, null, "${flash.message}.\n")
-                            return redirect(controller: "dashboard")
-                        } else {
-                            throw new MongoException("Failed to update the database")
-                        }
-                    } else if ((token.type == "oathhotp" || token.type == "googlehotp") && data > 0) {
-                        if (User.collection.update([ username : session.uid, 'tokens.authKey' : params.authKey ], [ $set : [ 'tokens.$.active' : true, 'tokens.$.counter' : data ]])) {
-                            flash.message = "Your ${tokenTypes.get(token.type)} token with ${tokenId(token)} has been successfully activated"
-                            generateMail(user.mail, null, "${flash.message}.\n")
-                            return redirect(controller: "dashboard")
-                        } else {
-                            throw new MongoException("Failed to update the database")
-                        }
+                    if (User.collection.update([ username : session.uid, 'tokens.authKey' : params.authKey ], [ $set : [ 'tokens.$.active' : true ]])) {
+                        flash.message = "Your ${tokenDescription(token)} token with ${tokenId(token)} has been successfully activated"
+                        generateMail(user.mail, null, "${flash.message}.\n")
+                        return redirect(controller: "dashboard")
+                    } else {
+                        throw new MongoException("Failed to update the database")
                     }
                 } else {
                     flash.error = data
@@ -440,20 +431,21 @@ class UserController {
             return redirect(controller: "dashboard")
         }
 
-        def user = User.collection.findOne(['username' : session.uid, 'tokens.tokId' : id])
+        def user = User.collection.findOne(['username' : session.uid, 'tokens.credentialId' : id])
 
         if (user) {
             user.tokens.each {
-                if (it.tokId == id) {
-                    // If the token haven't been activated yet we remove it without a confirmation request
+                if (it.credentialId == id) {
+                    // If the token hasn't been activated yet we remove it without a confirmation request
                     if (!it.active) {
-                        if (User.collection.update([username : session.uid], [ $pull : [ tokens : [ tokId : id]]])) {
-                            flash.message = "The ${tokenTypes.get(it.type)} token with ${tokenId(it)} has been successfully removed from your account."
+                        if (User.collection.update([username : session.uid], [ $pull : [ tokens : [ credentialId: id]]])) {
+                            TokenUtility.removeToken(session.oid.toString(), (Token) it)
+                            flash.message = "The ${tokenDescription(it)} token with ${tokenId(it)} has been successfully removed from your account."
                         }
                     } else if (!it.remove) {
                         def uuid = UUID.randomUUID().toString()
                         it.authKey = uuid
-                        if (User.collection.update([ username : session.uid, "tokens.tokId" : id ], [ $set : [ 'tokens.$.authKey' : uuid, 'tokens.$.remove' : true]])) {
+                        if (User.collection.update([ username : session.uid, "tokens.credentialId" : id ], [ $set : [ 'tokens.$.authKey' : uuid, 'tokens.$.remove' : true]])) {
                             generateMail(user.mail, it, "del")
                             flash.message = "Security token removal request sent, please check your mail for further instructions to complete the token removal."
                         }
@@ -473,7 +465,8 @@ class UserController {
             user.tokens.each {
                 if (it.authKey == params.id) {
                     if (User.collection.update([username : session.uid], [ $pull : [ tokens : [ authKey : params.id]]])) {
-                        flash.message = "Your ${tokenTypes.get(it.type)} token with ${tokenId(it)} has been successfully removed from your account."
+                        TokenUtility.removeToken(session.oid.toString(), (Token) it)
+                        flash.message = "Your ${tokenDescription(it)} token with ${tokenId(it)} has been successfully removed from your account."
                         generateMail(user.mail, it, "${flash.message}.\n")
                     }
                 }
@@ -485,9 +478,9 @@ class UserController {
     }
 
     def cancelRemoveToken = {
-        def user = User.collection.findOne([username : session.uid, tokens : [ $elemMatch : [ tokId : params.id, remove: true]]])
+        def user = User.collection.findOne([username : session.uid, tokens : [ $elemMatch : [ credentialId : params.id, remove: true]]])
         if (user) {
-            if (User.collection.update([username : session.uid, 'tokens.tokId' : params.id], [$set : [ 'tokens.$.remove' : false]])) {
+            if (User.collection.update([username : session.uid, 'tokens.credentialId' : params.id], [$set : [ 'tokens.$.remove' : false]])) {
                 flash.message = "Removal of token has been cancelled."
             }
         } else {
@@ -504,7 +497,10 @@ class UserController {
                     render(template: "yubikey")
                     break
                 case "oathhotp":
-                    render(template: "oathhotp")
+                    render(template: "oathhotp", model: [tokenType: tokenType])
+                    break
+                case "oathtotp":
+                    render(template: "oathhotp", model: [tokenType: tokenType])
                     break
                 case "googlehotp":
                     render(template: "googleauthhotp")
@@ -524,11 +520,11 @@ class UserController {
             flash.message = "Missing or invalid token object id"
             return redirect(controller: "dashboard")
         }
-        def user = User.collection.findOne(['username' : session.uid, 'tokens.tokId' : id])
+        def user = User.collection.findOne(['username' : session.uid, 'tokens.credentialId' : id])
 
         if (user) {
             user.tokens.each {
-                if (it.tokId == id) {
+                if (it.credentialId == id) {
                     if (it.remove) {
                         generateMail(user.mail, it, "del")
                         flash.message = "Security token removal request sent, please check your mail"
@@ -569,10 +565,10 @@ class UserController {
                 action = "activateToken"
                 template = "mailTokenActivation"
                 subject += "Security token activation request"
-                reason = "Activation request for your ${tokenTypes.get(token.type)} token with ${tokenId(token)}."
+                reason = "Activation request for your ${tokenDescription(token)} token with ${tokenId(token)}."
                 break
             case "del":
-                cancelUrl = request.siteUrl + g.createLink(controller: "user", action: "cancelRemoveToken", id: token.tokId)
+                cancelUrl = request.siteUrl + g.createLink(controller: "user", action: "cancelRemoveToken", id: token.credentialId)
                 action = "confirmRemoveToken"
                 template = "mailTokenRemoval"
                 subject += "Security token removal request"
@@ -594,6 +590,21 @@ class UserController {
 
     private def tokenId(token) {
         return token.type == 'yubikey' ? "ID ${uid.yubikeyPublicId(token: token)}" : "the label '${token.identifier.encodeAsHTML()}'"
+    }
+
+    private def tokenDescription(token) {
+        def tokenTypes = [
+                'yubikey': 'YubiKey',
+                'oathhotp': 'OATH-HOTP (Counter based)',
+                'oathtotp': 'OATH-TOTP (Time based)',
+                'googleoathhotp': 'Google authenticator (Counter based)',
+                'googleoathtotp': 'Google authenticator (Time based)',
+        ]
+        if (token.guiType == 'google') {
+            return tokenTypes.get(token.guiType + token.type)
+        }
+
+        return tokenTypes.get(token.type)
     }
 
     private def getTokenByAuthKey(tokens, authKey) {

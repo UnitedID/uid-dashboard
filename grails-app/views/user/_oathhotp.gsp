@@ -62,7 +62,7 @@
 
 <g:form id="tokens" method="post" name="addOathHotp">
   <fieldset>
-    <g:hiddenField name="tokenType" value="oathhotp"/>
+    <g:hiddenField name="tokenType" value="${tokenType}"/>
     <p>
       <label for="identifier"><g:message code="uid.usertool.token.oathhotp.identifier.label" default="Label (ex. serial nr or text)" /></label>
       <g:textField class="identifier oath" name="identifier" value="" />

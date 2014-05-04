@@ -22,17 +22,17 @@
         <div class="wrap">
           <uid:displayToken token="${token}" />
           <g:if test="${token.remove}">
-            <span class="link"><g:link controller="user" action="cancelRemoveToken" id="${token.tokId}">Cancel removal</g:link></span>
+            <span class="link"><g:link controller="user" action="cancelRemoveToken" id="${token.credentialId}">Cancel removal</g:link></span>
           </g:if>
           <g:else>
-            <span class="link"><g:link controller="user" action="removeToken" id="${token.tokId}">Remove token</g:link></span>
+            <span class="link"><g:link controller="user" action="removeToken" id="${token.credentialId}">Remove token</g:link></span>
           </g:else>
         </div>
         <g:if test="${!token.active}">
-          <div class="tokaction">Activation pending<span class="link"><g:link controller="user" action="resendTokenMail" id="${token.tokId}">Re-send activation mail</g:link></span></div>
+          <div class="tokaction">Activation pending<span class="link"><g:link controller="user" action="resendTokenMail" id="${token.credentialId}">Re-send activation mail</g:link></span></div>
         </g:if>
         <g:elseif test="${token.remove}">
-          <div class="tokaction">Removal pending<span class="link"><g:link controller="user" action="resendTokenMail" id="${token.tokId}">Re-send removal mail</g:link></span></div>
+          <div class="tokaction">Removal pending<span class="link"><g:link controller="user" action="resendTokenMail" id="${token.credentialId}">Re-send removal mail</g:link></span></div>
         </g:elseif>
       </div>
     </g:each>

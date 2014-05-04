@@ -31,14 +31,14 @@
         <div class="data">
           <h4>Token Activation</h4>
           <p>
-          <g:if test="${token.type == 'yubikey'}">
-            To complete the activation for your Yubikey with ID ${uid.yubikeyPublicId(token: token)} please enter a one-time password.
+          <g:if test="${token.guiType == 'yubikey'}">
+            To complete the activation for your Yubikey with the ID ${uid.yubikeyPublicId(token: token)} please enter a one-time password.
           </g:if>
-          <g:elseif test="${token.type == 'googlehotp' || token.type == 'googletotp'}">
+          <g:elseif test="${token.guiType == 'google'}">
             To complete the activation for your Google Authenticator with the label '${token.identifier.encodeAsHTML()}' please enter a one-time password.
           </g:elseif>
           <g:else>
-            To complete the activation for your OATH-HOTP token with the label '${token.identifier.encodeAsHTML()}' please enter a one-time password.
+            To complete the activation for your OATH OTP token with the label '${token.identifier.encodeAsHTML()}' please enter a one-time password.
           </g:else>
           </p>
           <div class="form1">
@@ -48,7 +48,7 @@
             <g:if test="${token.type == 'yubikey' }">
               <g:render template="yubikeyotp" />
             </g:if>
-            <g:elseif test="${token.type == 'oathhotp' || token.type == 'googlehotp' || token.type == 'googletotp'}">
+            <g:elseif test="${token.type == 'oathhotp' || token.type == 'oathtotp'}">
               <g:render template="oathhotpotp" />
             </g:elseif>
             <p>

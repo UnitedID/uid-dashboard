@@ -18,18 +18,32 @@ package org.unitedid.usertool
 
 import com.yubico.client.v2.YubicoClient
 import grails.util.Holders
+import org.unitedid.auth.client.AuthClient
+import org.unitedid.auth.client.OATHFactor
+import org.unitedid.auth.client.RevokeFactor
 
 import java.security.MessageDigest
 import org.apache.commons.codec.binary.Base32
 import org.apache.commons.codec.binary.Hex
 import org.unitedid.yhsm.YubiHSM
-import org.unitedid.yhsm.ws.client.YubiHSMValidationClient
 
 class TokenUtility {
 
     static def config = Holders.config
+    static def baseURL = (String) config.auth.backend.baseURL
 
-    static def verifyToken(Token token, String otp) {
+    static def removeToken(String userId, Token token) {
+        def factor = new RevokeFactor(token.type, token.credentialId)
+        def authClient = new AuthClient(baseURL)
+
+        if (authClient.revokeCredential(userId, factor)) {
+            return true
+        }
+
+        return false
+    }
+
+    static def verifyToken(String userId, Token token, String otp) {
         if (token.type == "yubikey") {
             def yubiKey = verifyYubiKey(otp)
 
@@ -41,10 +55,8 @@ class TokenUtility {
                 }
             }
             return [false, yubiKey.status]
-        } else if (token.type == "oathhotp" || token.type == "googlehotp") {
-            return verifyOathHotp(token, otp)
-        } else if (token.type == "googletotp") {
-            return verifyOathTOTP(token, otp)
+        } else if (['oathhotp', 'oathtotp'].contains(token.type)) {
+            return verifyOathOtp(userId, token, otp)
         }
 
         return [false, "Token type '${token.type}' is not supported"]
@@ -73,88 +85,51 @@ class TokenUtility {
         }
     }
 
-    static def verifyOathHotp(Token token, String otp) {
-        def keyHandle = (int) config.yhsm.oathValidationKeyHandle
-        def lookAhead = (int) config.yhsm.oathLookAhead
-        YubiHSMValidationClient hsm = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
-        def counter = hsm.validateOathHOTP(token.nonce, keyHandle, token.aead, token.counter, otp, lookAhead)
+    /***
+     * Verify OATH OTP against authentication backend.
+     *
+     * @param token the token being verifying the OTP against
+     * @param otp the user one time password (6-8 digits)
+     */
+    static def verifyOathOtp(String userId, Token token, String otp) {
+        def factor = new OATHFactor(token.type, token.nonce, otp, token.credentialId)
+        AuthClient authClient = new AuthClient(baseURL)
 
-        // OATH-HOTP validated successfully
-        if (counter != 0) {
-            return [true, counter]
-        }
-
-        return [false, "Validation failed for the supplied one-time password, please try again"]
-    }
-
-    static def verifyOathTOTP(Token token, String otp) {
-        def keyHandle = (int) config.yhsm.oathValidationKeyHandle
-        YubiHSMValidationClient hsm = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
-        if (hsm.validateOathTOTP(token.nonce, keyHandle, token.aead, otp, 30, 0, 1, 1)) {
+        if (authClient.authenticate(userId, factor)) {
             return [true, ""]
         }
 
         return [false, "Validation failed for the supplied one-time password, please try again"]
     }
 
-    static def getOathHOTPToken(params) {
+    static def getOATHToken(userId, params) {
         def seed = params.seed
         def identifier = params.identifier
         def otp = params.otp
-        def tokenType = params.tokenType
+        def googleType = ['googlehotp':'oathhotp', 'googletotp':'oathtotp']
+        def tokenType = googleType.containsKey(params.tokenType) ? googleType.get(params.tokenType) : params.tokenType
 
         if (seed.length() != 40) {
             return null
         }
 
         def aeadKeyHandle = (int) config.yhsm.oathEncryptKeyHandle
-        def validationKeyHandle = (int) config.yhsm.oathValidationKeyHandle
-        def nonce = PasswordUtil.getRandomNonce()
 
         YubiHSM hsm = new YubiHSM(config.yhsm.device, (float) 0.5)
-        YubiHSMValidationClient hsmWsClient = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
-        def aead = hsm.generateOathHotpAEAD(nonce, aeadKeyHandle, seed)
-        def counter = hsmWsClient.validateOathHOTP(nonce, validationKeyHandle, aead, 0, otp, 40)
+        def nonce = hsm.getRandom(6).encodeHex().toString()
+        def aead = hsm.generateOathAEAD(nonce, aeadKeyHandle, seed)
 
-        if (counter > 0) {
-            return new Token(type: tokenType, identifier: identifier, counter: counter, aead: aead, nonce: nonce)
+        Token token = new Token(type: tokenType, nonce: nonce, guiType: "oathtoken", identifier: identifier)
+
+        if (googleType.containsKey(params.tokenType)) {
+            token.guiType = "google"
         }
 
-        return null
-    }
-
-    static def getOATHToken(params) {
-        def seed = params.seed
-        def identifier = params.identifier
-        def otp = params.otp
-        def tokenType = params.tokenType
-
-        if (seed.length() != 40) {
-            return null
+        def factor = new OATHFactor(tokenType, aeadKeyHandle, aead, nonce, otp, token.credentialId)
+        def authClient = new AuthClient(baseURL)
+        if (authClient.addCredential(userId, factor)) {
+            return token
         }
-
-        def aeadKeyHandle = (int) config.yhsm.oathEncryptKeyHandle
-        def validationKeyHandle = (int) config.yhsm.oathValidationKeyHandle
-        def nonce = PasswordUtil.getRandomNonce()
-
-        YubiHSM hsm = new YubiHSM(config.yhsm.device, (float) 0.5)
-        YubiHSMValidationClient hsmWsClient = new YubiHSMValidationClient(config.yhsm.ws.validationURL)
-        def aead = hsm.generateOathHotpAEAD(nonce, aeadKeyHandle, seed)
-
-        def counter
-        if (tokenType == "googletotp") {
-            counter = hsmWsClient.validateOathTOTP(nonce, validationKeyHandle, aead, otp, 30, 0, 2, 2)
-        } else {
-            counter = hsmWsClient.validateOathHOTP(nonce, validationKeyHandle, aead, 0, otp, 40)
-        }
-
-        //if (counter > 0) {
-            if (tokenType == "googletotp") {
-                return new Token(type: tokenType, identifier: identifier, aead: aead, nonce: nonce)
-            } else {
-                return new Token(type: tokenType, identifier: identifier, counter: counter, aead: aead, nonce: nonce)
-            }
-       // }
 
         return null
     }

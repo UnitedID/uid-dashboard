@@ -23,7 +23,7 @@ class TokenTagLib {
 
     def displayToken = { attrs ->
         def token = attrs.token
-        switch(token.type) {
+        switch(token.guiType) {
             case "yubikey":
                 out << "<span><img src=\"${resource(dir:'images/dongles', file:'black_yubikey.png')}\" alt=\"Black YubiKey\"/></span>"
                 if (token.identifier =~ /^cccc/) {
@@ -32,15 +32,12 @@ class TokenTagLib {
                     out << "<span>YubiKey - ${fieldValue(bean: token, field: 'identifier')}</span>"
                 }
                 break
-            case "oathhotp":
-                out << "<span><img src=\"${resource(dir:'images/dongles', file:'c100-small.png')}\" alt=\"OATH-HOTP token\"/></span>"
-                out << "<span>OATH-HOTP - ${fieldValue(bean: token, field: 'identifier')}</span>"
+            case "oathtoken":
+                def tokenDesc = token.type == 'oathhotp' ? "OATH-HOTP" : "OATH-TOTP"
+                out << "<span><img src=\"${resource(dir:'images/dongles', file:'c100-small.png')}\" alt=\"${tokenDesc} token\"/></span>"
+                out << "<span>${tokenDesc} - ${fieldValue(bean: token, field: 'identifier')}</span>"
                 break
-            case "googlehotp":
-                out << "<span><img src=\"${resource(dir:'images/dongles', file:'googleauth.png')}\" alt=\"Google Authenticator\"/></span>"
-                out << "<span>Google Authenticator - ${fieldValue(bean: token, field: 'identifier')}</span>"
-                break
-            case "googletotp":
+            case "google":
                 out << "<span><img src=\"${resource(dir:'images/dongles', file:'googleauth.png')}\" alt=\"Google Authenticator\"/></span>"
                 out << "<span>Google Authenticator - ${fieldValue(bean: token, field: 'identifier')}</span>"
                 break

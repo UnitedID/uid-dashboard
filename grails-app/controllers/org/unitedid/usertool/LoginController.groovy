@@ -129,7 +129,7 @@ class LoginController {
         }
 
         if (checkActiveToken(user?.tokens)) {
-            if (validateOTP(user.tokens, params.otp)) {
+            if (validateOTP(user, params.otp)) {
                 session.tokenAuthRequired = null
                 redirect(uri: session.forwardURI)
             } else {
@@ -144,24 +144,23 @@ class LoginController {
         }
     }
 
-    private def validateOTP(List<Token> tokens, String otp) {
+    private def validateOTP(User user, String otp) {
+        def userId = user.id.toString()
         def status = false
-        def data = ""
 
-        for (Token token in tokens) {
+        for (Token token in user.tokens) {
+            def data = ""
             if (!token.active)
                 continue
 
-            if (otp =~ /[0-9]+/ && otp.length() >= 6 && otp.length() <= 8 &&
-                    (token.type == "oathhotp" || token.type == "googlehotp" || token.type == "googletotp")) {
-                (status, data) = TokenUtility.verifyToken(token, otp)
-            } else if (otp.length() >= 32 && token.type == "yubikey") {
-                (status, data) = TokenUtility.verifyToken(token, otp)
+            // To reduce the round trips to the auth backend we only verify tokens we know would match the otp length.
+            if (otp =~ /[0-9]{6,8}/ && ['oathhotp', 'oathtotp'].contains(token.type)) {
+                (status, data) = TokenUtility.verifyToken(userId, token, otp)
+            } else if (otp.length() >= 32 && token.type == 'yubikey') {
+                (status, data) = TokenUtility.verifyToken(userId, token, otp)
             }
 
             if (status) {
-                if (token.type == "oathhotp" || token.type == "googlehotp")
-                    updateOathCounter(token, (int) data)
                 return status
             }
         }

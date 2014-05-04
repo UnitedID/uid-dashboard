@@ -139,12 +139,11 @@ class Credential {
 }
 
 class Token {
-    String tokId = new ObjectId().toString()
+    String credentialId = new ObjectId().toString()
     String type
+    String guiType
     String identifier
-    String aead
     String nonce
-    Integer counter
     boolean active = false
     boolean remove = false
     String authKey = UUID.randomUUID().toString()
@@ -154,8 +153,4 @@ class Token {
 
     static belongsTo = User
     static constraints = {}
-
-    public String toString() {
-        return tokId
-    }
 }
