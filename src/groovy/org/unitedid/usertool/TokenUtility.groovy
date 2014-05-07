@@ -16,16 +16,18 @@
 
 package org.unitedid.usertool
 
+import com.yubico.client.v1.YubicoClient
 import com.yubico.client.v2.YubicoClient
 import grails.util.Holders
+import org.apache.commons.codec.binary.Base32
+import org.apache.commons.codec.binary.Hex
 import org.unitedid.auth.client.AuthClient
 import org.unitedid.auth.client.OATHFactor
 import org.unitedid.auth.client.RevokeFactor
+import org.unitedid.auth.client.YubiKeyFactor
+import org.unitedid.yhsm.YubiHSM
 
 import java.security.MessageDigest
-import org.apache.commons.codec.binary.Base32
-import org.apache.commons.codec.binary.Hex
-import org.unitedid.yhsm.YubiHSM
 
 class TokenUtility {
 
@@ -45,16 +47,7 @@ class TokenUtility {
 
     static def verifyToken(String userId, Token token, String otp) {
         if (token.type == "yubikey") {
-            def yubiKey = verifyYubiKey(otp)
-
-            if (yubiKey.status == "OK") {
-                if (token.identifier == yubiKey.publicId) {
-                    return [true, ""]
-                } else {
-                    return [false, "The YubiKey used does not match the token currently being activated"]
-                }
-            }
-            return [false, yubiKey.status]
+            return verifyYubiKey(userId, token, otp)
         } else if (['oathhotp', 'oathtotp'].contains(token.type)) {
             return verifyOathOtp(userId, token, otp)
         }
@@ -62,27 +55,15 @@ class TokenUtility {
         return [false, "Token type '${token.type}' is not supported"]
     }
 
-    static def verifyYubiKey(otp) {
-        def yubicoClient = YubicoClient.getClient()
-        yubicoClient.setClientId(4711)
-        def yubicoResponse = yubicoClient.verify(otp)
-        if (yubicoResponse) {
-            switch(yubicoResponse.getStatus().toString()) {
-                case "OK":
-                    def publicId = YubicoClient.getPublicId(otp)
-                    return [publicId: publicId, status: "OK"]
-                    break
-                case "BAD_OTP":
-                    return [publicId: null, status: "Invalid OTP format. Please try again."]
-                    break
-                case "REPLAYED_OTP":
-                    def publicId = YubicoClient.getPublicId(otp)
-                    return [publicId: publicId, status: "That OTP has already been used. Please try again by using a new OTP from your Yubikey."]
-                    break
-            }
-        } else {
-            return [publicId: null, status: "Failed to validate Yubikey OTP."]
+    static def verifyYubiKey(String userId, Token token, String otp) {
+        def factor = new YubiKeyFactor(token.type, token.nonce, otp, token.credentialId)
+        AuthClient authClient = new AuthClient(baseURL)
+
+        if (authClient.authenticate(userId, factor)) {
+            return [true, ""]
         }
+
+        return [false, "Failed to validate Yubikey OTP."]
     }
 
     /***
@@ -100,6 +81,27 @@ class TokenUtility {
         }
 
         return [false, "Validation failed for the supplied one-time password, please try again"]
+    }
+
+    static def getYubiKeyPublicId(otp) {
+        return YubicoClient.getPublicId(otp)
+    }
+
+    static def getYubiKeyToken(userId, params) {
+        def otp = params.otp
+        def identifier = getYubiKeyPublicId(otp)
+
+        YubiHSM hsm = new YubiHSM(config.yhsm.device, (float) 0.5)
+        def nonce = hsm.getRandom(12).encodeHex().toString()
+
+        Token token = new Token(type: 'yubikey', nonce: nonce, guiType: 'yubikey', identifier: identifier)
+
+        def factor = new YubiKeyFactor(token.type, nonce, otp, token.credentialId)
+        def authClient = new AuthClient(baseURL)
+        if (authClient.addCredential(userId, factor)) {
+            return token
+        }
+        return null
     }
 
     static def getOATHToken(userId, params) {

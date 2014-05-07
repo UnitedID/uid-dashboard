@@ -18,6 +18,7 @@ package org.unitedid.usertool
 import com.mongodb.MongoException
 
 import static org.unitedid.usertool.TokenUtility.getOATHToken
+import static org.unitedid.usertool.TokenUtility.getYubiKeyToken
 
 class UserController {
     static allowedMethods = [saveAccount: "POST", saveNewPassword: "POST", addToken: "POST"]
@@ -330,19 +331,18 @@ class UserController {
         def message = null
 
         if (tokenType == "yubikey") {
-            def yubiKey = TokenUtility.verifyYubiKey(params.otp)
-            if (yubiKey.status == "OK") {
-                def existingToken = User.collection.findOne([username: session.uid, 'tokens.identifier': yubiKey.publicId])
-                if (existingToken) {
-                    flash.error = "A YubiKey with that id already exists."
-                    return redirect(controller: "user", action: "manageTokens")
-                }
-                token = new Token(type:tokenType, identifier: yubiKey.publicId)
-                message = "Yubikey with id '" + uid.yubikeyPublicId(token: token) + "' has been added to your account. To activate this token please check your mail for further instructions."
-            } else {
-                flash.error = yubiKey.status
+            def publicId = TokenUtility.getYubiKeyPublicId(params.otp)
+            def existingToken = User.collection.findOne([username: session.uid, 'tokens.identifier': publicId])
+            if (existingToken) {
+                flash.error = "A YubiKey with that id already exists."
                 return redirect(controller: "user", action: "manageTokens")
             }
+            token = getYubiKeyToken(session.oid.toString(), params)
+            if (!token) {
+                flash.error = "YubiKey OTP verirication failed"
+                return redirect(controller: "user", action: "manageTokens")
+            }
+            message = "Yubikey with id '" + uid.yubikeyPublicId(token: token) + "' has been added to your account. To activate this token please check your mail for further instructions."
         } else if (tokenType == "oathhotp" || tokenType == "oathtotp") {
             token = getOATHToken(session.oid.toString(), params)
             def tokenDesc = tokenType == 'oathhotp' ? "OATH-HOTP" : "OATH-TOTP"
@@ -393,7 +393,7 @@ class UserController {
             def user = User.collection.findOne([username: session.uid, 'tokens.authKey': params.authKey])
             Token token = getTokenByAuthKey(user.tokens, params.authKey)
             if (user && token != null) {
-                def (status, data) = TokenUtility.verifyToken(session.uid.toString(), token, params.otp)
+                def (status, data) = TokenUtility.verifyToken(session.oid.toString(), token, params.otp)
                 if (status) {
                     if (User.collection.update([ username : session.uid, 'tokens.authKey' : params.authKey ], [ $set : [ 'tokens.$.active' : true ]])) {
                         flash.message = "Your ${tokenDescription(token)} token with ${tokenId(token)} has been successfully activated"

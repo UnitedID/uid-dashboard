@@ -58,6 +58,7 @@ grails.project.dependency.resolution = {
         runtime 'org.springframework.security:spring-security-core:3.2.2.RELEASE'
         runtime 'org.glassfish.jersey.core:jersey-client:2.7'
         runtime 'com.google.code.gson:gson:2.2.4'
+        runtime 'com.yubico:yubico-validation-client2:2.0.1'
     }
 
     plugins {
