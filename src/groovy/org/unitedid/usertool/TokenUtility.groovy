@@ -16,15 +16,14 @@
 
 package org.unitedid.usertool
 
-import com.yubico.client.v1.YubicoClient
 import com.yubico.client.v2.YubicoClient
 import grails.util.Holders
 import org.apache.commons.codec.binary.Base32
 import org.apache.commons.codec.binary.Hex
 import org.unitedid.auth.client.AuthClient
-import org.unitedid.auth.client.OATHFactor
-import org.unitedid.auth.client.RevokeFactor
-import org.unitedid.auth.client.YubiKeyFactor
+import org.unitedid.auth.client.factors.OATHFactor
+import org.unitedid.auth.client.factors.RevokeFactor
+import org.unitedid.auth.client.factors.YubiKeyFactor
 import org.unitedid.yhsm.YubiHSM
 
 import java.security.MessageDigest
@@ -33,6 +32,8 @@ class TokenUtility {
 
     static def config = Holders.config
     static def baseURL = (String) config.auth.backend.baseURL
+    static def authUsername = (String) config.auth.backend.username
+    static def authPassword = (String) config.auth.backend.password
 
     static def removeToken(String userId, Token token) {
         def factor = new RevokeFactor(token.type, token.credentialId)
@@ -57,7 +58,7 @@ class TokenUtility {
 
     static def verifyYubiKey(String userId, Token token, String otp) {
         def factor = new YubiKeyFactor(token.type, token.nonce, otp, token.credentialId)
-        AuthClient authClient = new AuthClient(baseURL)
+        AuthClient authClient = new AuthClient(baseURL, authUsername, authPassword)
 
         if (authClient.authenticate(userId, factor)) {
             return [true, ""]
@@ -74,7 +75,7 @@ class TokenUtility {
      */
     static def verifyOathOtp(String userId, Token token, String otp) {
         def factor = new OATHFactor(token.type, token.nonce, otp, token.credentialId)
-        AuthClient authClient = new AuthClient(baseURL)
+        AuthClient authClient = new AuthClient(baseURL, authUsername, authPassword)
 
         if (authClient.authenticate(userId, factor)) {
             return [true, ""]
@@ -97,7 +98,7 @@ class TokenUtility {
         Token token = new Token(type: 'yubikey', nonce: nonce, guiType: 'yubikey', identifier: identifier)
 
         def factor = new YubiKeyFactor(token.type, nonce, otp, token.credentialId)
-        def authClient = new AuthClient(baseURL)
+        def authClient = new AuthClient(baseURL, authUsername, authPassword)
         if (authClient.addCredential(userId, factor)) {
             return token
         }
@@ -128,7 +129,7 @@ class TokenUtility {
         }
 
         def factor = new OATHFactor(tokenType, aeadKeyHandle, aead, nonce, otp, token.credentialId)
-        def authClient = new AuthClient(baseURL)
+        def authClient = new AuthClient(baseURL, authUsername, authPassword)
         if (authClient.addCredential(userId, factor)) {
             return token
         }

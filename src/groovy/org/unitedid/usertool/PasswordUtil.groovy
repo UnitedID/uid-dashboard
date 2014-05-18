@@ -20,17 +20,19 @@ package org.unitedid.usertool
 import grails.util.Holders
 import org.bson.types.ObjectId
 import org.unitedid.auth.client.AuthClient
-import org.unitedid.auth.client.PasswordFactor
-import org.unitedid.auth.client.RevokeFactor
+import org.unitedid.auth.client.factors.PasswordFactor
+import org.unitedid.auth.client.factors.RevokeFactor
 
 class PasswordUtil {
 
     static def config = Holders.config
     static def baseURL = (String) config.auth.backend.baseURL
+    static def authUsername = (String) config.auth.backend.username
+    static def authPassword = (String) config.auth.backend.password
 
     static def generateSecret(String password, String userId) {
         PasswordFactor passwordFactor = new PasswordFactor(password, new ObjectId().toString())
-        AuthClient authClient = new AuthClient(baseURL)
+        AuthClient authClient = new AuthClient(baseURL, authUsername, authPassword)
         if (!authClient.addCredential(userId, passwordFactor)) {
             throw new Exception("Add credential failed")
         }
@@ -43,7 +45,7 @@ class PasswordUtil {
         PasswordFactor passwordFactor = new PasswordFactor(password,
                 user.credential.credentialId,
                 user.credential.salt)
-        AuthClient authClient = new AuthClient(baseURL)
+        AuthClient authClient = new AuthClient(baseURL, authUsername, authPassword)
         if (authClient.authenticate(user.id.toString(), passwordFactor)) {
             result = true
         }
@@ -52,65 +54,11 @@ class PasswordUtil {
     }
 
     static def revokeCredential(Credential credential, String userId) {
-        AuthClient authClient = new AuthClient(baseURL)
+        AuthClient authClient = new AuthClient(baseURL, authUsername, authPassword)
         RevokeFactor factor = new RevokeFactor("password", credential.credentialId)
         if (authClient.revokeCredential(userId, factor)) {
             return true
         }
         return false
     }
-
-
-/*    public static Map<String, String> getAEADFromPassword(String password) {
-        def nonce = getRandomNonce()
-        def salt = getRandomNonce()
-
-        // Generate a PBKDF2 hash based on password
-        def hash = getHashFromPassword(password, salt, false)
-
-        // Use YubiHSM to get an AEAD from nonce and hash
-        YubiHSM hsm = new YubiHSM((String) config.yhsm.device)
-        def aead = hsm.generateAEAD(nonce, (int) config.yhsm.encryptKeyHandle, hash)
-        aead['salt'] = salt
-
-        return aead
-    }
-
-    public static String getRandomNonce() {
-        SecureRandom rand = SecureRandom.getInstance("SHA1PRNG")
-        byte[] randomBytes = new byte[12]
-        rand.nextBytes(randomBytes)
-        return new String(Hex.encodeHex(new Base64().encode(randomBytes))).substring(0, 12)
-    }
-
-    public static String getHashFromPassword(String password, String salt, boolean convertToHex) {
-        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt.getBytes("UTF-8"), (int) config.pbkdf2.iterations, (int) config.pbkdf2.length)
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-        SecretKey secretKey = keyFactory.generateSecret(keySpec)
-        def hash = null
-        if (convertToHex) {
-            hash = new String(Hex.encodeHex(new Base64().encode(secretKey.getEncoded())))
-        } else {
-            hash = new String(secretKey.getEncoded())
-        }
-
-        return hash
-    }
-
-    public static boolean validatePassword(String password, String salt, String aead, String nonce) {
-        def hashedPassword = getHashFromPassword(password, salt, false)
-        def keyHandle = (int) config.yhsm.decryptKeyHandle
-
-        YubiHSMValidationClient hsm = new YubiHSMValidationClient((String) config.yhsm.ws.validationURL)
-        try {
-              return hsm.validateAEAD(nonce, keyHandle, aead, hashedPassword)
-        } catch (YubiHSMInputException e) {
-            // Indicates wrong password was used since the expected size of the AEAD and password doesn't match
-            // We return false instead of throwing an exception
-            return false
-        } catch (Exception e) {
-            throw new Exception(e)
-        }
-    }
-    */
 }
