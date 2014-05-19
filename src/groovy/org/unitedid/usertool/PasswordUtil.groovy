@@ -18,11 +18,13 @@
 
 package org.unitedid.usertool
 import grails.util.Holders
+import groovy.util.logging.Log4j
 import org.bson.types.ObjectId
 import org.unitedid.auth.client.AuthClient
 import org.unitedid.auth.client.factors.PasswordFactor
 import org.unitedid.auth.client.factors.RevokeFactor
 
+@Log4j
 class PasswordUtil {
 
     static def config = Holders.config
@@ -41,7 +43,8 @@ class PasswordUtil {
 
     public static boolean validatePassword(String password, User user) {
         def result = false
-        print "CredId: " + user.credential.credentialId + " Salt: " + user.credential.salt
+        log.debug(String.format("Validating credentialId %s", user.credential.credentialId))
+
         PasswordFactor passwordFactor = new PasswordFactor(password,
                 user.credential.credentialId,
                 user.credential.salt)
