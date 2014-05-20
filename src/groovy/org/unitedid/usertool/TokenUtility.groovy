@@ -37,7 +37,7 @@ class TokenUtility {
 
     static def removeToken(String userId, Token token) {
         def factor = new RevokeFactor(token.type, token.credentialId)
-        def authClient = new AuthClient(baseURL)
+        def authClient = new AuthClient(baseURL, authUsername, authPassword)
 
         if (authClient.revokeCredential(userId, factor)) {
             return true
