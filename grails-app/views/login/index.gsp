@@ -55,7 +55,7 @@
               </g:if>
               <p>
                 <label></label>
-                <g:submitButton name="authenticate" value="${message(code: 'form.login.label.submitbutton', default: 'Login')}" /> <g:actionSubmit name="signup" action="signup" value="${message(code: 'signup', default: 'Signup')}" />
+                <g:submitButton name="authenticate" value="${message(code: 'form.login.label.submitbutton', default: 'Login')}" /> <g:actionSubmit name="signup" action="signup" value="${message(code: 'signup', default: 'Sign up')}" />
               </p>
             </fieldset>
           </g:form>
