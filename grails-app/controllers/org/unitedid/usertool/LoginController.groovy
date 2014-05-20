@@ -102,6 +102,10 @@ class LoginController {
         redirect(uri: session.forwardURI)
     }
 
+    def signup = {
+        redirect(controller: 'signup')
+    }
+
     def tokenAuth = {
         if (!session?.tokenAuthRequired) {
             redirect(action: 'index')

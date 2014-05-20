@@ -32,7 +32,7 @@ class DashboardController {
 
     def logout = {
         session.invalidate()
-        redirect(controller: 'welcome')
+        redirect(controller: 'login')
     }
 
 }

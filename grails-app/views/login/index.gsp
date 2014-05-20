@@ -41,6 +41,10 @@
                 <label for="password"><g:message code="form.signup.label.password" default="Password" /></label>
                 <g:passwordField name="password" />
               </p>
+              <p class="password">
+                <label></label>
+                <g:link controller="account" action="forgotPassword"><g:message code="forgot.password" default="Forgot your password?"/></g:link>
+              </p>
               <g:if test="${session?.failedAttempts > 2}">
                 <recaptcha:ifEnabled>
                   <div class="captcha">
@@ -51,15 +55,7 @@
               </g:if>
               <p>
                 <label></label>
-                <g:submitButton name="authenticate" value="${message(code: 'form.login.label.submitbutton', default: 'Login')}" />
-              </p>
-              <p>
-                <label></label>
-                <g:link controller="signup" action="index"><g:message code="signup" default="Signup"/></g:link>
-              </p>
-              <p class="password">
-                <label></label>
-                <g:link controller="account" action="forgotPassword"><g:message code="forgot.password" default="Forgot your password?"/></g:link>
+                <g:submitButton name="authenticate" value="${message(code: 'form.login.label.submitbutton', default: 'Login')}" /> <g:actionSubmit name="signup" action="signup" value="${message(code: 'signup', default: 'Signup')}" />
               </p>
             </fieldset>
           </g:form>
