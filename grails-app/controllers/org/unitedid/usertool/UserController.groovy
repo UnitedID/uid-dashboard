@@ -339,7 +339,7 @@ class UserController {
             }
             token = getYubiKeyToken(session.oid.toString(), params)
             if (!token) {
-                flash.error = "YubiKey OTP verirication failed"
+                flash.error = "YubiKey OTP verification failed"
                 return redirect(controller: "user", action: "manageTokens")
             }
             message = "Yubikey with id '" + uid.yubikeyPublicId(token: token) + "' has been added to your account. To activate this token please check your mail for further instructions."
@@ -589,7 +589,7 @@ class UserController {
     }
 
     private def tokenId(token) {
-        return token.type == 'yubikey' ? "ID ${uid.yubikeyPublicId(token: token)}" : "the label '${token.identifier.encodeAsHTML()}'"
+        return token.type == 'yubikey' ? "ID ${uid.yubikeyPublicId(token: token)}" : "the label ${token.identifier.encodeAsHTML()}"
     }
 
     private def tokenDescription(token) {
