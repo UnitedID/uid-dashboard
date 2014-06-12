@@ -20,12 +20,9 @@
 
   $(function() {
     $("#manageAccount").validate({
-      success: function(label) {
-        label.addClass("success");
-      },
       rules: {
         'address.zip': {
-          validateRegex: "(^[0-9 ]+$|^$)"
+          validateRegex: "(^[0-9A-Za-z- ]{2,15}$|^$)"
         },
         website: {
           url: true
@@ -33,7 +30,7 @@
       },
       messages: {
         'address.zip': {
-          validateRegex: "Postal code may only include digits 0-9 and space"
+          validateRegex: "Postal code may only include letters A-Z, digits 0-9, dash and space"
         },
         website: {
           url: "Please enter a valid URL"

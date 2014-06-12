@@ -70,7 +70,7 @@ class User {
                 return true
             if (val?.zip && (val.zip == "" || val.zip == null))
                 return true
-            (val?.zip && val.zip =~ /^[0-9 ]+$/) ? true : ['invalid.zip']
+            (val?.zip && val.zip =~ /^[0-9A-Za-z- ]{2,15}$/) ? true : ['invalid.zip']
         }
         tokens nullable: true
         states nullable: true
