@@ -30,7 +30,7 @@
       <div class="data">
         <h4>Add email address</h4>
         <div class="form1">
-          <g:form action="changeEmail" name="changeEmail">
+          <g:form useToken="true" action="changeEmail" name="changeEmail">
             <fieldset>
               <p>
                 <label for="mail"><g:message code="uid.usertool.changeEmail.addMail.label" default="Email address" /></label>

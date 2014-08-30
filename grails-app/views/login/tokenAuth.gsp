@@ -30,11 +30,11 @@
       <div class="data">
         <h4>United ID - Login</h4>
         <div class="form1">
-          <g:form controller="login" action="validateTokenAuth">
+          <g:form useToken="true" controller="login" action="validateTokenAuth">
             <fieldset>
               <p>
                 <label for="otp"><g:message code="form.signup.label.otp" default="One-time password" /></label>
-                <g:textField onkeypress="handle_enter(event);" name="otp" class="otp"/>
+                <g:textField  name="otp" class="otp"/>
               </p>
               <p>
                 <label></label>

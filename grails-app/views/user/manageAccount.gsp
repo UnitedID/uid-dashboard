@@ -31,7 +31,7 @@
       <div class="data">
         <h4>Manage personal information</h4>
         <div id="manage-account-form" class="form1">
-          <g:form method="post" name="manageAccount">
+          <g:form useToken="true" method="post" name="manageAccount">
             <fieldset>
               <p>
                 <label for="givenName"><g:message code="uid.usertool.account.label.givenName" default="First name" /></label>

@@ -42,7 +42,7 @@
           </g:else>
           </p>
           <div class="form1">
-          <g:form method="post" name="activateToken">
+          <g:form useToken="true" method="post" name="activateToken">
             <fieldset>
             <g:hiddenField name="authKey" value="${token.authKey}"/>
             <g:if test="${token.type == 'yubikey' }">

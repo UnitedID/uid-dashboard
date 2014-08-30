@@ -31,7 +31,7 @@
       <div class="data">
         <h4>United ID - Login</h4>
         <div class="form1">
-          <g:form id="login" controller="login" action="authenticate">
+          <g:form useToken="true" id="login" controller="login" action="authenticate">
             <fieldset>
               <p>
                 <label for="username"><g:message code="form.signup.label.userId" default="Username or email" /></label>
