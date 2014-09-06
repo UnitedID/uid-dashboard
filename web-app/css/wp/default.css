@@ -1010,6 +1010,13 @@ li.content-column {
     border-left: 4px solid #168db9;
 }
 
+.completeness.red {
+    background: #f2f2f2;
+    border: 1px dotted #FF4B33;
+    border-left: 4px solid #FF4B33;
+    margin-bottom: 10px;
+}
+
 .completeness ul li {
     background: url("../../images/icons/add_small.png") no-repeat !important;
     background-position: 0% 50% !important;

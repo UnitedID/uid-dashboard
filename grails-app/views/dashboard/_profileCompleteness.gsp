@@ -18,6 +18,15 @@
 
 <div id="primary" class="aside main-aside">
   <ul class="xoxo">
+    <g:if test="${user?.tokens?.size() == 0}">
+    <li>
+      <div class="completeness red">
+        <strong>Attention!</strong>
+        Your United ID account can not be used with a service provider until you have added
+        at least one security token.
+      </div>
+    </li>
+    </g:if>
     <li>
       <h4>Profile completeness<span style="float: right;">${score}%</span></h4>
       <div class="completeness">
