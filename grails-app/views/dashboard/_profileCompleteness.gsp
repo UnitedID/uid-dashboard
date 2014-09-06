@@ -22,15 +22,12 @@
       <h4>Profile completeness<span style="float: right;">${score}%</span></h4>
       <div class="completeness">
         <g:if test="${score == 100}">
-          Congratulations, you have completed your profile. Information about why you should complete your
-          profile will be available soon, stay tuned!
+          Congratulations, your profile is complete!
         </g:if>
         <g:else>
           <ul>
             <uid:getScore user="${user}" showAddress="2" showBase="2" />
           </ul>
-          Information about why you should complete your
-          profile will be available soon, stay tuned!
         </g:else>
       </div>
     </li>
