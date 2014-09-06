@@ -16,7 +16,6 @@
 
 package org.unitedid.usertool
 import com.megatome.grails.RecaptchaService
-import com.mongodb.MongoException
 import grails.util.Holders
 
 class LoginController {
@@ -170,12 +169,6 @@ class LoginController {
         }
 
         return status
-    }
-
-    private def updateOathCounter(Token token, int counter) {
-        if (!User.collection.update([username: session.uid, 'tokens.tokId': token.tokId], [$set: ['tokens.$.counter': counter]])) {
-            throw new MongoException("Failed to update the OATH counter in the database")
-        }
     }
 
     /**
