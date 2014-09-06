@@ -78,7 +78,7 @@ a:hover {
     z-index:2;
 }
 #branding {
-    padding:44px 0 34px 0;
+    padding-top:25px;
 }
 #blog-title {
     font-family:Arial,sans-serif;
@@ -235,7 +235,7 @@ ul.sf-menu li li li.sfHover ul {
 
 #main {
     clear:both;
-    padding:22px 0 22px 0;
+    padding:10px 0 22px 0;
 }
 .page-title {
     font-size:13px;
@@ -797,8 +797,7 @@ li.content-column {
 }
 #primary {
     /*border:1px solid #ccc;*/
-    padding:18px 0 0 0;
-    margin-bottom:22px;
+    padding:43px 0 0 0;
 }
 /*
     Content Asides

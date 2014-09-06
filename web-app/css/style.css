@@ -84,18 +84,20 @@ img.aligncenter {
 
 .message {
     background: #f3f8fc url(../images/skin/information.png) 8px 50% no-repeat;
-    margin: 0 0 15px 0;
     padding: 5px 5px 5px 30px;
     border: 1px solid #b2d1ff;
     color: #006dba;
+    width: 96%;
+    position: absolute;
 }
 
 .errormsg {
     background: #fff3f3 url(../images/skin/exclamation.png) 8px 50% no-repeat;;
     border: 1px solid red;
-    margin: 0 0 15px 0;
     color: #cc0000;
     padding: 5px 5px 5px 30px;
+    width: 96%;
+    position: absolute;
 }
 
 .errors {

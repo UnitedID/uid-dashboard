@@ -29,6 +29,7 @@ body {
 }
 #container {
     width:580px;
+    padding-top: 25px;
     float:left;
 }
 #content {
@@ -42,6 +43,7 @@ body {
     position:relative;
 }
 #secondary {
+    padding-top: 35px;
     clear:right;
 }
 #footer {
