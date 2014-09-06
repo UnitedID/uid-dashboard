@@ -16,6 +16,7 @@
 
 package org.unitedid.usertool
 import com.mongodb.MongoException
+import grails.util.Holders
 
 import static org.unitedid.usertool.TokenUtility.getOATHToken
 import static org.unitedid.usertool.TokenUtility.getYubiKeyToken
@@ -31,6 +32,8 @@ class UserController {
             'googletotp': 'Google Authenticator (Time based)']
 
     def mailService
+
+    def config = Holders.config
 
     def index = {
         redirect(controller: "dashboard", action: "index")
@@ -357,7 +360,6 @@ class UserController {
                 flash.error = "Google Authenticator verification failed"
                 return redirect(controller: "user", action: "manageTokens")
             }
-            token.identifier = session.uid + "@unitedid.org"
             message = "A Google Authenticator token has been added to your account. To activate this token please check your mail for further instructions."
         } else {
             flash.error = "Unknown token type, please try again."
@@ -547,10 +549,11 @@ class UserController {
 
 
     def generateQRCode = {
+        def issuer = config.google.authenticator.issuer
         def user = session.uid + "@unitedid.org"
         response.setHeader("Content-disposition", "attachment; filename=qrcode.png")
         response.contentType = "image/png"
-        def oathUri = "otpauth://" + params.type + "/" + user + "?secret=" + params.id
+        def oathUri = sprintf("otpauth://%s/%s:%s?secret=%s&issuer=%s", params.type, issuer, user, params.id, issuer)
         response.outputStream << BarCode.createQrCodeBlue(oathUri, 200, "png")
     }
 

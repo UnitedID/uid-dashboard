@@ -15,11 +15,11 @@
  */
 
 package org.unitedid.usertool
-
 import com.yubico.client.v2.YubicoClient
 import grails.util.Holders
 import org.apache.commons.codec.binary.Base32
 import org.apache.commons.codec.binary.Hex
+import org.codehaus.groovy.grails.web.util.WebUtils
 import org.unitedid.auth.client.AuthClient
 import org.unitedid.auth.client.factors.OATHFactor
 import org.unitedid.auth.client.factors.RevokeFactor
@@ -107,7 +107,8 @@ class TokenUtility {
 
     static def getOATHToken(userId, params) {
         def seed = params.seed
-        def identifier = params.identifier
+        def session = WebUtils.retrieveGrailsWebRequest().getSession()
+        def identifier = sprintf("%s@unitedid.org", session.uid)
         def otp = params.otp
         def googleType = ['googlehotp':'oathhotp', 'googletotp':'oathtotp']
         def tokenType = googleType.containsKey(params.tokenType) ? googleType.get(params.tokenType) : params.tokenType
