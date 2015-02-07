@@ -35,25 +35,26 @@ class LoginFilters {
                     if (Environment.current == Environment.PRODUCTION) {
                         session.forwardURI = request.forwardURI - request.contextPath
                         redirect(controller: "login")
-                    } else {
-/*                        def username = "uidtest1"
+                    } else if (Environment.current.name == 'fake_session') {
                         def userInstance
                         try {
-                            userInstance = User.findByUsername(username)
+                            userInstance = User.findByUsername('fakeuser')
                         } catch (Exception e) {
                             Thread.sleep(500)
                             try {
-                                userInstance = User.findByUsername(username)
+                                userInstance = User.findByUsername('fakeuser')
                             } catch (Exception ex) {
-                                throw new RuntimeException("Failed to re-connect to the database", ex)
+                                throw new RuntimeException("Failed to re-connect to the database". ex)
                             }
                         }
                         if (userInstance) {
+                            session.uid = userInstance.username
                             session.oid = userInstance.id
+                            session.role = "admin"
                         }
-
-                        session.uid = username
-                        session.role= "admin" */
+                        session.forwardURI = request.forwardURI - request.contextPath
+                        redirect(controller: "dashboard")
+                    } else {
                         session.forwardURI = request.forwardURI - request.contextPath
                         redirect(controller: "login")
                     }

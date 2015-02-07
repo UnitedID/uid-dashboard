@@ -120,6 +120,20 @@ environments {
         yhsm.oathEncryptKeyHandle = 8192 // or 0x0200
         yhsm.oathLookAhead = 20
     }
+    fake_session {
+        email.port = com.icegreen.greenmail.util.ServerSetupTest.SMTP.port
+        grails.serverURL = "http://localhost:8080/${appName}"
+        auth.backend.baseURL = "http://localhost:8081/uid-auth-backend"
+        auth.backend.username = ""
+        auth.backend.password = ""
+
+        // OATH
+        yhsm.device = "/dev/ttyACM0"
+        yhsm.oathEncryptKeyHandle = 8192
+        yhsm.oathLookAhead = 20
+
+        grails.logging.jul.usebridge = true
+    }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
     }

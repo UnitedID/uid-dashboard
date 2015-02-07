@@ -32,6 +32,24 @@ environments {
             }
         }
     }
+    fake_session {
+        grails {
+            mongo {
+                host = "localhost"
+                port = 27017
+                databaseName = "fake_session"
+                options {
+                    autoConnectRetry = true
+                    connectTimeout = 3000
+                    connectionsPerHost = 40
+                    socketTimeout = 60000
+                    threadsAllowedToBlockForConnectionMultiplier = 5
+                    maxAutoConnectRetryTime=5
+                    maxWaitTime=120000
+                }
+            }
+        }
+    }
     test {
     }
     production {

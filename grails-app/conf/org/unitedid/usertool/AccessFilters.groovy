@@ -29,7 +29,8 @@ class AccessFilters {
         all(controller: '*', action: '*') {
             before = {
                 // Always allow access too /greenmail in development mode
-                if (Environment.current == Environment.DEVELOPMENT && controllerName == "greenmail") {
+                if ((Environment.current == Environment.DEVELOPMENT ||
+                        Environment.current.name == 'fake_session') && controllerName == "greenmail") {
                     return true
                 }
                 if (request.contentIsPublic) { return true }

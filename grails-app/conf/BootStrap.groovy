@@ -17,6 +17,7 @@
 
 
 import grails.util.Environment
+import org.unitedid.usertool.User
 
 class BootStrap {
 
@@ -44,6 +45,10 @@ class BootStrap {
             //
         } else if (Environment.current == Environment.TEST) {
             //
+        } else if (Environment.current.name == 'fake_session') {
+              if(!User.findByUsername('fakeuser')) {
+                  new User(username: 'fakeuser', mail: 'fakeuser@example.com', acceptTerms: true).save(flush: true)
+              }
         }
 
     }
